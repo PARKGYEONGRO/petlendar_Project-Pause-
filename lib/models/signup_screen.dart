@@ -1,3 +1,4 @@
+// import 부분은 그대로
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _birthController = TextEditingController();
+  final _phoneController = TextEditingController(); // 1. 전화번호 컨트롤러 추가
 
   bool _isEmailValid = false;
   bool _isEmailUnique = true;
@@ -31,6 +33,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _upperLowerRegex = RegExp(r'(?=.*[a-z])(?=.*[A-Z])');
   final _specialCharRegex = RegExp(r'(?=.*[!@#$%^&*(),.?":{}|<>])');
 
+  // 2. _allFieldsValid에 전화번호 포함
   bool get _allFieldsValid =>
       _isEmailValid &&
       _isEmailUnique &&
@@ -39,7 +42,8 @@ class _SignupScreenState extends State<SignupScreen> {
       _hasSpecialChar &&
       _hasMinLength &&
       _nameController.text.isNotEmpty &&
-      _birthController.text.isNotEmpty;
+      _birthController.text.isNotEmpty &&
+      _phoneController.text.isNotEmpty;
 
   @override
   void initState() {
@@ -81,10 +85,10 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       final res = await http.post(
         Uri.parse(
-            'https://mljwvknbhwgtcbwbmimh.supabase.co/functions/v1/database-access'),
+            'https://tpaszbxerpnwrxuxarlv.supabase.co/functions/v1/database-access'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sand2a25iaHdndGNid2JtaW1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNTc2MTksImV4cCI6MjA3MDkzMzYxOX0.IfnELTNHeJZXkmn5BWA_aY_lxK2m7J87Ew-mSjC1wE8',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwYXN6YnhlcnBud3J4dXhhcmx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc2MDY3NTAsImV4cCI6MjA3MzE4Mjc1MH0.CPJqL0ax1k27O9H5Bz4lw9d1qhoZSIJmDINJq5-Kj8U',
           },
         body: jsonEncode({'action': 'check_email', 'email': email}),
       );
@@ -114,7 +118,7 @@ class _SignupScreenState extends State<SignupScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime(2000, 1, 1),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1971),
       lastDate: DateTime.now(),
     );
     if (picked != null) {
@@ -135,8 +139,9 @@ class _SignupScreenState extends State<SignupScreen> {
         data: {
           'display_name': _nameController.text,
           'birth': _birthController.text,
+          'phone': _phoneController.text, // 3. 전화번호 추가
         },
-        emailRedirectTo: 'petlendar-signup://signup-callback',
+        emailRedirectTo: 'petlendar://signup-callback',
       );
 
       if (response.user != null && mounted) {
@@ -175,6 +180,7 @@ class _SignupScreenState extends State<SignupScreen> {
     _confirmPasswordController.dispose();
     _nameController.dispose();
     _birthController.dispose();
+    _phoneController.dispose(); // 4. dispose 추가
     super.dispose();
   }
 
@@ -189,6 +195,7 @@ class _SignupScreenState extends State<SignupScreen> {
         padding: const EdgeInsets.all(20),
         child: ListView(
           children: [
+            // 이메일 입력
             Row(
               children: [
                 Expanded(
@@ -227,6 +234,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     style: const TextStyle(color: Colors.blue)),
               ),
             const SizedBox(height: 10),
+            // 비밀번호 입력
             TextField(
               controller: _passwordController,
               obscureText: true,
@@ -251,16 +259,25 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
             const SizedBox(height: 10),
+            // 이름 입력
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: "성함"),
             ),
             const SizedBox(height: 10),
+            // 생년월일 입력
             TextField(
               controller: _birthController,
               readOnly: true,
               decoration: const InputDecoration(labelText: "생년월일"),
               onTap: _pickBirthDate,
+            ),
+            const SizedBox(height: 10),
+            // 5. 전화번호 입력 UI 추가
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: "전화번호"),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

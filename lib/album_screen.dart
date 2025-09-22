@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import 'models/photo_item.dart';
 
 class CachedUrl {
@@ -22,10 +24,10 @@ class AlbumScreen extends StatefulWidget {
 class _AlbumScreenState extends State<AlbumScreen> {
   final ImagePicker _picker = ImagePicker();
   List<PhotoItem> photoList = [];
-  Map<String, CachedUrl> _signedUrlCache = {};
+  final Map<String, CachedUrl> _signedUrlCache = {};
   bool _isPicking = false;
   bool _isSelectionMode = false;
-  Set<int> _selectedForAction = {};
+  final Set<int> _selectedForAction = {};
 
   @override
   void initState() {
@@ -33,7 +35,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
     _initializePhotos();
   }
 
-  /// 유저별 사진 불러오기 + signed URL 캐시
   Future<void> _initializePhotos() async {
     try {
       final user = Supabase.instance.client.auth.currentUser!;
@@ -49,7 +50,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
         return PhotoItem(filePath: e['path'] as String, createdAt: DateTime.now());
       }).toList();
 
-      // 모든 URL 동시 발급
       await Future.wait(photoList.map((photo) async {
         final url = await Supabase.instance.client
             .storage
@@ -65,7 +65,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
     }
   }
 
-  /// signed URL 자동 갱신
   Future<String> _getSignedUrl(String filePath) async {
     final cached = _signedUrlCache[filePath];
     final now = DateTime.now();
@@ -81,7 +80,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
     return newUrl;
   }
 
-  /// 사진 선택 및 업로드
   Future<void> _pickAndUploadImages() async {
     if (_isPicking) return;
     _isPicking = true;
@@ -140,7 +138,6 @@ class _AlbumScreenState extends State<AlbumScreen> {
     });
   }
 
-  /// 사진 삭제
   Future<void> _deleteSelectedImages() async {
     try {
       final user = Supabase.instance.client.auth.currentUser!;
@@ -172,14 +169,19 @@ class _AlbumScreenState extends State<AlbumScreen> {
     }
   }
 
-  /// 선택 사진 공유
-  void _shareSelectedImages() async {
+  /// 선택 사진 공유 (방법2: 로컬 다운로드 후 공유)
+  Future<void> _shareSelectedImages() async {
     if (_selectedForAction.isEmpty) return;
 
     List<XFile> filesToShare = [];
+    final tempDir = await getTemporaryDirectory();
+
     for (var i in _selectedForAction) {
       final url = await _getSignedUrl(photoList[i].filePath);
-      filesToShare.add(XFile(url));
+      final res = await http.get(Uri.parse(url));
+      final file = File('${tempDir.path}/${photoList[i].filePath.split('/').last}');
+      await file.writeAsBytes(res.bodyBytes);
+      filesToShare.add(XFile(file.path));
     }
 
     await Share.shareXFiles(

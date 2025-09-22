@@ -46,7 +46,7 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <!-- 회원가입 전용 redirect URI -->
                 <data
-                    android:scheme="petlendar-signup"
+                    android:scheme="petlendar"
                     android:host="signup-callback"/>
             </intent-filter>
 

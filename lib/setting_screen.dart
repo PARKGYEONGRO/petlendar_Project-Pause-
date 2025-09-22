@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:vibration/vibration.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 
@@ -101,6 +102,15 @@ class _SettingScreenState extends State<SettingScreen> {
     }
   }
 
+  Future<void> _launchInquiryURL() async {
+    final Uri url = Uri.parse("https://forms.gle/znZT6oSJJ9Au2Ro1A");
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      Fluttertoast.showToast(msg: "사이트를 열 수 없습니다.");
+    }
+  }
+
   /// provider별 커스텀 아이콘 (Google 4색 / Kakao / Email)
   Widget _getProviderIcon(String provider, {double size = 28}) {
     switch (provider) {
@@ -173,7 +183,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
     for (var identity in identities) {
       final email = identity.identityData?['email'] ?? '이메일 없음';
-      final provider = identity.provider ?? 'unknown';
+      final provider = identity.provider;
 
       merged.putIfAbsent(email, () => {});
       merged[email]!.add(provider);
@@ -225,7 +235,7 @@ class _SettingScreenState extends State<SettingScreen> {
                           .toList(),
                     ),
                   );
-                }).toList()
+                })
               else
                 const ListTile(
                   title: Text("로그인된 계정이 없습니다."),
@@ -261,10 +271,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   },
                 ),
                 ListTile(
-                  title: const Text('오류 제보'),
-                  onTap: () {
-                    debugPrint('오류 제보 클릭됨');
-                  },
+                  title: const Text('오류 및 직접 문의하기'),
+                  onTap: _launchInquiryURL,
                 ),
               const SizedBox(height: 30),
 

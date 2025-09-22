@@ -34,7 +34,7 @@ class _MainBottomNavState extends State<MainBottomNav> {
     final vibrationEnabled = prefs.getBool('vibration') ?? true;
 
     // 진동 가능 여부 확인 후 진동
-    if (vibrationEnabled && await Vibration.hasVibrator() ?? false) {
+    if (vibrationEnabled && await Vibration.hasVibrator()) {
       Vibration.vibrate(duration: 50); // 50ms 진동
     }
 

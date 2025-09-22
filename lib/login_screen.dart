@@ -169,17 +169,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(builder: (_) => const SignupScreen()),
                     );
                   },
-                  child: const Text("회원가입 | "),
+                  child: const Text("회원가입 | ",
+                  style: TextStyle(
+                    fontSize: 16
+                  ),),
                 ),
 
                 GestureDetector(
                   onTap: () {},
-                  child: const Text("아이디 찾기 | "),
+                  child: const Text("아이디 찾기 | ",
+                  style: TextStyle(
+                    fontSize: 16
+                  ),),
                 ),
 
                 GestureDetector(
                   onTap: () {},
-                  child: const Text("비밀번호 찾기"),
+                  child: const Text("비밀번호 찾기",
+                  style: TextStyle(
+                    fontSize: 16
+                  ),),
                 ),
               ],
             ),

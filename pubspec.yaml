@@ -30,6 +30,7 @@ dependencies:
   table_calendar: ^3.2.0
   intl: ^0.20.2
   get: ^4.7.2
+  url_launcher: ^6.3.2
 
   
   flutter_localizations:
