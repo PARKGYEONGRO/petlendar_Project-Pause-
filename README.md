@@ -37,5 +37,5 @@ UI: flutter_hooks, flutter_svg, cached_network_image 등
       펫 카테고리 구현 (펫 관리사항을 편리하게 보기 위한 카테고리 구현)
 
 
-## 목표
+## 현재 진행상태
 개발 중지
