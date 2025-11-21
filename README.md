@@ -38,4 +38,4 @@ UI: flutter_hooks, flutter_svg, cached_network_image 등
 
 
 ## 목표
-**10월 04일 출시**
+개발 중지
